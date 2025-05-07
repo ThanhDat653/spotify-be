@@ -1,6 +1,20 @@
-from django.urls import path
-from . import views
+from django.urls import path, include
+from rest_framework.routers import DefaultRouter
+from .views import *
+
+router = DefaultRouter()
+router.register(r'roles', RoleViewSet)
+router.register(r'users', UserViewSet)
+router.register(r'albums', AlbumViewSet)
+router.register(r'genres', GenreViewSet)
+router.register(r'songs', SongViewSet)
+router.register(r'playlists', PlaylistViewSet)
+
+
+
 urlpatterns = [
-    path("blogposts/", views.BlogPostListCreate.as_view(), name="blogpost-view-create"),
-    path("blogposts/<int:pk>", views.BlogPostRetrieveUpdateDestroy.as_view(), name="update"),
+    path('', include(router.urls)),
+    # path('register/', RegisterView.as_view(), name='register'),
+    # path('login/', LoginView.as_view(), name='login'),
 ]
+

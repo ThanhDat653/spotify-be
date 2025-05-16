@@ -1,4 +1,4 @@
-from rest_framework import viewsets, generics
+from rest_framework import viewsets, generics, filters
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -7,7 +7,7 @@ from .models import Role, User, Genre, Song, Album, Playlist
 from .serializers import (
     RoleSerializer, UserSerializer, GenreSerializer,
     SongSerializer, AlbumSerializer, PlaylistSerializer,
-    RegisterSerializer, LoginSerializer, UserPublicSerializer
+    RegisterSerializer, LoginSerializer, UserPublicSerializer, ArtistSerializer
 )
 
 
@@ -18,9 +18,15 @@ class RoleViewSet(viewsets.ModelViewSet):
     serializer_class = RoleSerializer
 
 
+class ArtistViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.filter(role__id=1)
+    serializer_class = ArtistSerializer
+    search_fields = ['username']
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    search_fields = ['username']
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -31,6 +37,8 @@ class GenreViewSet(viewsets.ModelViewSet):
 class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'albums__title', 'artists__username']
 
 
 class AlbumViewSet(viewsets.ModelViewSet):

@@ -29,6 +29,7 @@ class UserPublicSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'avatar', 'role']
 
 
+
 class AlbumMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
@@ -53,6 +54,21 @@ class SongMiniSerializer(serializers.ModelSerializer):
 
 
 # === MAIN SERIALIZERS ===
+
+class ArtistSerializer(serializers.ModelSerializer):
+    songs = serializers.SerializerMethodField()
+    albums = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'avatar', 'username', 'albums', 'songs']
+
+    def get_songs(self, obj):
+        return SongSerializer(obj.songs.all(), many=True).data
+
+    def get_albums(self, obj):
+        return AlbumSerializer(Album.objects.filter(creator=obj), many=True).data
+
 
 class UserSerializer(serializers.ModelSerializer):
     role = RoleSerializer(read_only=True)

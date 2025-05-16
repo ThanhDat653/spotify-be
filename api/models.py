@@ -59,18 +59,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         return f"{self.role.name} - {self.username}"
 
 
-# class User(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     username = models.CharField(max_length=100)
-#     email = models.CharField(max_length=100, null=True)
-#     password = models.CharField(max_length=100)
-#     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
-#     createAt = models.DateField(auto_now_add=True)
-#     role = models.ForeignKey(Role, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return f"{self.role.name} - {self.username}"
-
 class Genre(models.Model):
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)

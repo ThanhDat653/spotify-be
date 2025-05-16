@@ -1,5 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
+from .serializers import ArtistSerializer
 from .views import *
 
 router = DefaultRouter()
@@ -9,6 +11,7 @@ router.register(r'genres', GenreViewSet)
 router.register(r'songs', SongViewSet)
 router.register(r'albums', AlbumViewSet)
 router.register(r'playlists', PlaylistViewSet)
+router.register(r'artists', ArtistViewSet, basename='artist')
 
 urlpatterns = [
     path('', include(router.urls)),

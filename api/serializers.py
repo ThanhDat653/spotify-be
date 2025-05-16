@@ -1,66 +1,149 @@
+from django.contrib.auth import authenticate
+from django.contrib.auth.hashers import make_password
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import authenticate
 
 from .models import Role, User, Genre, Song, Album, Playlist
 
-# === BASIC SERIALIZERS ===
+
+# === BASIC SERIALIZERS (for nested usage) ===
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
-        fields = '__all__'
+        fields = ['id', 'name']
 
 
 class GenreSerializer(serializers.ModelSerializer):
     class Meta:
         model = Genre
-        fields = '__all__'
+        fields = ['id', 'name']
 
 
-class AlbumSerializer(serializers.ModelSerializer):
-    creator = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+class UserPublicSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    avatar = serializers.ImageField(use_url=False)
 
     class Meta:
+        model = User
+        fields = ['id', 'username', 'avatar', 'role']
+
+
+class AlbumMiniSerializer(serializers.ModelSerializer):
+    class Meta:
         model = Album
-        fields = '__all__'
+        fields = ['id', 'title']
 
+class ArtistMiniSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username']
 
-class SongSerializer(serializers.ModelSerializer):
-    genre = serializers.PrimaryKeyRelatedField(many=True, queryset=Genre.objects.all())
-    albums = serializers.PrimaryKeyRelatedField(many=True, queryset=Album.objects.all())
-    artists = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
+class SongMiniSerializer(serializers.ModelSerializer):
+    artist = serializers.SerializerMethodField()
+    url = serializers.FileField(use_url=False)
+    thumbnail = serializers.ImageField(use_url=False)
 
     class Meta:
         model = Song
-        fields = '__all__'
+        fields = ['id', 'title', 'duration', 'artist', 'url', 'thumbnail']
+
+    def get_artist(self, obj):
+        return [{'id': artist.id, 'name': artist.username} for artist in obj.artists.all()]
+
+
+# === MAIN SERIALIZERS ===
+
+class UserSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    role_id = serializers.PrimaryKeyRelatedField(
+        queryset=Role.objects.all(), write_only=True, source='role'
+    )
+    avatar = serializers.ImageField(use_url=False)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password', 'avatar', 'createAt', 'role', 'role_id']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        user = User(**validated_data)
+        if password:
+            user.set_password(password)
+        user.save()
+        return user
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+
+class AlbumSerializer(serializers.ModelSerializer):
+    creator = UserPublicSerializer(read_only=True)
+    creator_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True, source='creator'
+    )
+    poster = serializers.ImageField(use_url=False)
+
+    songs = SongMiniSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Album
+        fields = ['id', 'title', 'releaseDate', 'poster', 'creator', 'creator_id', 'songs']
+
+
+class SongSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True, read_only=True)
+    genre_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Genre.objects.all(), write_only=True, source='genre'
+    )
+
+    url = serializers.FileField(use_url=False)
+    thumbnail = serializers.ImageField(use_url=False)
+
+    albums = AlbumMiniSerializer(many=True, read_only=True)
+    albums_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Album.objects.all(), write_only=True, source='albums'
+    )
+
+    artists = UserPublicSerializer(many=True, read_only=True)
+    artists_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=User.objects.all(), write_only=True, source='artists'
+    )
+
+    class Meta:
+        model = Song
+        fields = [
+            'id', 'title', 'duration', 'url', 'thumbnail',
+            'genre', 'genre_ids',
+            'albums', 'albums_ids',
+            'artists', 'artists_ids'
+        ]
 
 
 class PlaylistSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    songs = serializers.PrimaryKeyRelatedField(many=True, queryset=Song.objects.all())
+    user = UserPublicSerializer(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), write_only=True, source='user'
+    )
+
+    songs = SongMiniSerializer(many=True, read_only=True)
+    song_ids = serializers.PrimaryKeyRelatedField(
+        many=True, queryset=Song.objects.all(), write_only=True, source='songs'
+    )
+
+    poster = serializers.ImageField(use_url=False)
 
     class Meta:
         model = Playlist
-        fields = '__all__'
-
-# === USER SERIALIZERS ===
-
-class UserPublicSerializer(serializers.ModelSerializer):
-    role = RoleSerializer()
-
-    class Meta:
-        model = User
-        exclude = ['password']
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
+        fields = ['id', 'name', 'createAt', 'poster', 'user', 'user_id', 'songs', 'song_ids']
 
 # === AUTH SERIALIZERS ===
 
@@ -74,7 +157,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
     def create(self, validated_data):
-        # Tạo user trong custom User model
+        validated_data['password'] = make_password(validated_data['password'])
         return User.objects.create(**validated_data)
 
 

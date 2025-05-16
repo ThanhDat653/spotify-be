@@ -1,9 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import (
-    RoleViewSet, UserViewSet, GenreViewSet, SongViewSet, AlbumViewSet, PlaylistViewSet,
-    RegisterView, LoginView, MeView
-)
+from .views import *
 
 router = DefaultRouter()
 router.register(r'roles', RoleViewSet)
@@ -15,7 +12,7 @@ router.register(r'playlists', PlaylistViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
-    path('auth/register/', RegisterView.as_view(), name='register'),
-    path('auth/login/', LoginView.as_view(), name='login'),
-    path('auth/me/', MeView.as_view(), name='me'),
+    path('auth/register/', RegisterView.as_view()),
+    path('auth/login/', LoginView.as_view()),
+    path('auth/me/', MeView.as_view()),
 ]

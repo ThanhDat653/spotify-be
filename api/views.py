@@ -1,12 +1,14 @@
 from rest_framework import viewsets, generics
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+
 from .models import Role, User, Genre, Song, Album, Playlist
 from .serializers import (
     RoleSerializer, UserSerializer, GenreSerializer,
     SongSerializer, AlbumSerializer, PlaylistSerializer,
     RegisterSerializer, LoginSerializer, UserPublicSerializer
 )
-from django.contrib.auth import authenticate
 
 
 # ======= VIEWSETS =======
@@ -57,9 +59,6 @@ class LoginView(generics.GenericAPIView):
 
 
 # ======= GET CURRENT USER (ME) =======
-
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.views import APIView
 
 class MeView(APIView):
     permission_classes = [IsAuthenticated]

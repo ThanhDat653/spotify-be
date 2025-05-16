@@ -4,7 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="33e38b44-72d3-4f15-9f5d-47ed8706adcd" name="Changes" comment="add db" />
+    <list default="true" id="33e38b44-72d3-4f15-9f5d-47ed8706adcd" name="Changes" comment="add media">
+      <change afterPath="$PROJECT_DIR$/compose.yml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -168,7 +170,7 @@
       <workItem from="1746961970906" duration="25000" />
       <workItem from="1747187325586" duration="5769000" />
       <workItem from="1747298944079" duration="1700000" />
-      <workItem from="1747360717354" duration="14454000" />
+      <workItem from="1747360717354" duration="14852000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <option name="closed" value="true" />
@@ -258,7 +260,23 @@
       <option name="project" value="LOCAL" />
       <updated>1747382825535</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="add media folder">
+      <option name="closed" value="true" />
+      <created>1747383063261</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1747383063261</updated>
+    </task>
+    <task id="LOCAL-00013" summary="add media">
+      <option name="closed" value="true" />
+      <created>1747383076536</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1747383076536</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -284,7 +302,9 @@
     <MESSAGE value="feat: add migration file" />
     <MESSAGE value="chore" />
     <MESSAGE value="add db" />
-    <option name="LAST_COMMIT_MESSAGE" value="add db" />
+    <MESSAGE value="add media folder" />
+    <MESSAGE value="add media" />
+    <option name="LAST_COMMIT_MESSAGE" value="add media" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/backend$manage.coverage" NAME="manage Coverage Results" MODIFIED="1745478849457" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

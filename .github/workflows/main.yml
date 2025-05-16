@@ -2,11 +2,10 @@ name: spotify-cicd
 on: 
   push: 
     branches: [main]
-
-jobs: 
+jobs:
   deploy:
-    runs-on:  ubuntu-lastest
-    steps: 
+    runs-on: ubuntu-lastest
+    steps:
       - name: spotify
         uses: appleboy/ssh-action@master
         with:

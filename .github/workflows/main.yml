@@ -1,0 +1,22 @@
+name: spotify-cicd
+on: 
+  push: 
+    branches: [main]
+
+jobs: 
+  deploy:
+    runs-on:  ubuntu-lastest
+    steps: 
+      - name: spotify
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: root
+          password: ${{ secrets.VPS_PASS }}
+          port: 22
+          script: |
+            cd ${{ secrets.VPS_PATH }}
+            git fetch origin
+            git checkout main
+            git pull
+            docker compose up -d --build

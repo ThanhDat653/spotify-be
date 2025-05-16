@@ -58,6 +58,8 @@ class SongMiniSerializer(serializers.ModelSerializer):
 class ArtistSerializer(serializers.ModelSerializer):
     songs = serializers.SerializerMethodField()
     albums = serializers.SerializerMethodField()
+    avatar = serializers.ImageField(use_url=False)
+
 
     class Meta:
         model = User

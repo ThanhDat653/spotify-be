@@ -26,7 +26,7 @@ class UserPublicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'avatar', 'role']
+        fields = ['id', 'username', 'avatar', 'role', 'fullname']
 
 
 
@@ -38,7 +38,7 @@ class AlbumMiniSerializer(serializers.ModelSerializer):
 class ArtistMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username']
+        fields = ['id', 'username', 'fullname']
 
 class SongMiniSerializer(serializers.ModelSerializer):
     artist = serializers.SerializerMethodField()
@@ -50,7 +50,7 @@ class SongMiniSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'duration', 'artist', 'url', 'thumbnail']
 
     def get_artist(self, obj):
-        return [{'id': artist.id, 'name': artist.username} for artist in obj.artists.all()]
+        return [{'id': artist.id, 'name': artist.fullname} for artist in obj.artists.all()]
 
 
 # === MAIN SERIALIZERS ===
@@ -63,7 +63,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'avatar', 'username', 'albums', 'songs']
+        fields = ['id', 'avatar', 'username', 'fullname', 'albums', 'songs']
 
     def get_songs(self, obj):
         return SongSerializer(obj.songs.all(), many=True).data
@@ -81,7 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'password', 'avatar', 'createAt', 'role', 'role_id']
+        fields = ['id', 'username', 'fullname', 'email', 'password', 'avatar', 'createAt', 'role', 'role_id']
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
@@ -153,7 +153,7 @@ class PlaylistSerializer(serializers.ModelSerializer):
     )
 
     songs = SongMiniSerializer(many=True, read_only=True)
-    song_ids = serializers.PrimaryKeyRelatedField(
+    song_id = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Song.objects.all(), write_only=True, source='songs'
     )
 
@@ -161,14 +161,14 @@ class PlaylistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Playlist
-        fields = ['id', 'name', 'createAt', 'poster', 'user', 'user_id', 'songs', 'song_ids']
+        fields = ['id', 'name', 'createAt', 'poster', 'user', 'user_id', 'songs', 'song_id']
 
 # === AUTH SERIALIZERS ===
 
 class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'role', 'avatar')
+        fields = ('username', 'email', 'password', 'role', 'avatar', 'fullname')
         extra_kwargs = {
             'password': {'write_only': True},
             'avatar': {'required': False}

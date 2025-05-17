@@ -1,5 +1,7 @@
 from rest_framework import viewsets, generics, filters
 from rest_framework.response import Response
+from rest_framework.decorators import action
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
 
@@ -21,12 +23,14 @@ class RoleViewSet(viewsets.ModelViewSet):
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = User.objects.filter(role__id=1)
     serializer_class = ArtistSerializer
-    search_fields = ['username']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'fullname']
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    search_fields = ['username']
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'fullname']
 
 
 class GenreViewSet(viewsets.ModelViewSet):
@@ -38,17 +42,88 @@ class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'albums__title', 'artists__username']
+    search_fields = ['title', 'albums__title', 'artists__fullname', 'genre__name']
+    ordering_fields = ['title']
 
 
 class AlbumViewSet(viewsets.ModelViewSet):
     queryset = Album.objects.all()
     serializer_class = AlbumSerializer
+    
+    @action(detail=True, methods=['post'], url_path='add-song')
+    def add_song(self, request, pk=None):
+        album = self.get_object()
+        song_id = request.data.get('song_id')
+
+        if not song_id:
+            return Response({'error': 'Missing song_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            song = Song.objects.get(pk=song_id)
+        except Song.DoesNotExist:
+            return Response({'error': 'Song not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        album.songs.add(song)
+        return Response({'message': 'Song added successfully'}, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='remove-song')
+    def remove_song(self, request, pk=None):
+        album = self.get_object()
+        song_id = request.data.get('song_id')
+
+        if not song_id:
+            return Response({'error': 'Missing song_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            song = Song.objects.get(pk=song_id)
+        except Song.DoesNotExist:
+            return Response({'error': 'Song not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if song not in album.songs.all():
+            return Response({'error': 'Song not in album'}, status=status.HTTP_400_BAD_REQUEST)
+
+        album.songs.remove(song)
+        return Response({'message': 'Song removed successfully'}, status=status.HTTP_200_OK)
 
 
 class PlaylistViewSet(viewsets.ModelViewSet):
     queryset = Playlist.objects.all()
     serializer_class = PlaylistSerializer
+    
+    @action(detail=True, methods=['post'], url_path='add-song')
+    def add_song(self, request, pk=None):
+        playlist = self.get_object()
+        song_id = request.data.get('song_id')
+
+        if not song_id:
+            return Response({'error': 'Missing song_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            song = Song.objects.get(pk=song_id)
+        except Song.DoesNotExist:
+            return Response({'error': 'Song not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        playlist.songs.add(song)
+        return Response({'message': 'Song added successfully'}, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='remove-song')
+    def remove_song(self, request, pk=None):
+        playlist = self.get_object()
+        song_id = request.data.get('song_id')
+
+        if not song_id:
+            return Response({'error': 'Missing song_id'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            song = Song.objects.get(pk=song_id)
+        except Song.DoesNotExist:
+            return Response({'error': 'Song not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if song not in playlist.songs.all():
+            return Response({'error': 'Song not in playlist'}, status=status.HTTP_400_BAD_REQUEST)
+
+        playlist.songs.remove(song)
+        return Response({'message': 'Song removed successfully'}, status=status.HTTP_200_OK)
 
 
 # ======= AUTH & REGISTER =======

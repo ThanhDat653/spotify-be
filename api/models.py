@@ -40,6 +40,7 @@ class Role(models.Model):
 class User(AbstractBaseUser, PermissionsMixin):
     id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=100, unique=True)
+    fullname = models.CharField(max_length=100, null=True)
     email = models.CharField(max_length=100, null=True)
     password = models.CharField(max_length=100)
     avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)
@@ -56,7 +57,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = ['email']
 
     def __str__(self):
-        return f"{self.role.name} - {self.username}"
+        return f"{self.role.name} - {self.username} - {self.fullname}"
 
 
 class Genre(models.Model):

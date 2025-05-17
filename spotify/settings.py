@@ -24,6 +24,7 @@ SECRET_KEY = "django-insecure-d47im^540w50&#fcp7z8h2ap5c^x-qf4&vqb$x7reic)fwxmgv
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 ALLOWED_HOSTS = ['*']
 
 MEDIA_URL = '/media/'

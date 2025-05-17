@@ -1,9 +1,11 @@
+import random
 from rest_framework import viewsets, generics, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
+from django.db.models import Prefetch
 
 from .models import Role, User, Genre, Song, Album, Playlist
 from .serializers import (
@@ -155,3 +157,29 @@ class MeView(APIView):
 
     def get(self, request):
         return Response(UserPublicSerializer(request.user).data)
+
+# ======= GET LANGING PLAYLIST =======
+
+class LandingPageAPIView(APIView):
+    def get(self, request):
+        genres = Genre.objects.prefetch_related('song_set')
+
+        playlists_by_genre = []
+        for genre in genres:
+            songs = genre.song_set.all()[:10]  # Slice an toàn sau khi prefetch
+            playlists_by_genre.append({
+                "genre": genre.name,
+                "songs": SongSerializer(songs, many=True).data
+            })
+
+        top_trending_songs = Song.objects.order_by('-play_count')[:10]
+
+        all_album_ids = list(Album.objects.values_list('id', flat=True))
+        random_ids = random.sample(all_album_ids, min(len(all_album_ids), 5))
+        random_albums = Album.objects.filter(id__in=random_ids)
+
+        return Response({
+            "playlists_by_genre": playlists_by_genre,
+            "top_trending_songs": SongSerializer(top_trending_songs, many=True).data,
+            "random_albums": AlbumSerializer(random_albums, many=True).data
+        }, status=status.HTTP_200_OK)

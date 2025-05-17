@@ -13,8 +13,10 @@ router.register(r'albums', AlbumViewSet)
 router.register(r'playlists', PlaylistViewSet)
 router.register(r'artists', ArtistViewSet, basename='artist')
 
+
 urlpatterns = [
     path('', include(router.urls)),
+    path('landing-page/', LandingPageAPIView.as_view()),
     path('auth/register/', RegisterView.as_view()),
     path('auth/login/', LoginView.as_view()),
     path('auth/me/', MeView.as_view()),

@@ -20,21 +20,11 @@ class GenreSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
 
 
-class UserPublicSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(read_only=True)
-    avatar = serializers.ImageField(use_url=False)
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'avatar', 'role', 'fullname']
-
-
-
 class AlbumMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = Album
         fields = ['id', 'title']
-
+        
 class ArtistMiniSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -50,7 +40,29 @@ class SongMiniSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'duration', 'artist', 'url', 'thumbnail']
 
     def get_artist(self, obj):
-        return [{'id': artist.id, 'name': artist.fullname} for artist in obj.artists.all()]
+        return [{'id': artist.id, 'name': artist.fullname} for artist in obj.artists.all()]        
+        
+class PlaylistMiniSerializer(serializers.ModelSerializer):
+    songs = SongMiniSerializer(many=True, read_only=True)
+    class Meta:
+        model = Playlist
+        fields = ['id', 'name', 'poster', 'createAt', 'songs']
+
+
+class UserPublicSerializer(serializers.ModelSerializer):
+    role = RoleSerializer(read_only=True)
+    avatar = serializers.ImageField(use_url=False)
+    playlists = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'avatar', 'role', 'fullname', 'playlists']
+
+    def get_playlists(self, obj):
+        playlists = Playlist.objects.filter(user=obj)
+        return PlaylistMiniSerializer(playlists, many=True).data
+    
+
 
 
 # === MAIN SERIALIZERS ===

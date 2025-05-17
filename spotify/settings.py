@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "api",
     "rest_framework",
     'rest_framework_simplejwt',
+    "corsheaders",  # Thêm dòng này
 
 ]
 
@@ -56,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "corsheaders.middleware.CorsMiddleware",  # Thêm dòng này lên đầu
 ]
 
 ROOT_URLCONF = "spotify.urls"
@@ -154,3 +156,27 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+CORS_ALLOW_ALL_ORIGINS = DEBUG  # Cho phép tất cả origin khi debug
+
+# Cho phép CORS cho file media (áp dụng khi serve media qua Django)
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "range",  # Cho phép header range để stream file media
+]
+
+CORS_EXPOSE_HEADERS = [
+    "Content-Type",
+    "Content-Length",
+    "Accept-Ranges",
+    "Content-Range",
+    "Range",
+]

@@ -76,6 +76,7 @@ class Song(models.Model):
     thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)  # ✅ ảnh thumbnail
     albums = models.ManyToManyField('Album', related_name='songs')
     artists = models.ManyToManyField(User, related_name='songs')
+    play_count = models.PositiveIntegerField(default=0)  
 
     def __str__(self):
         return self.title
@@ -96,7 +97,7 @@ class Playlist(models.Model):
     createAt = models.DateField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     poster = models.ImageField(upload_to='posters/', null=True, blank=True)  # ✅ ảnh poster
-    songs = models.ManyToManyField(Song)
+    songs = models.ManyToManyField(Song, null=True, blank=True)
 
     def __str__(self):
         return self.name

@@ -42,8 +42,15 @@ class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     serializer_class = SongSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['title', 'albums__title', 'artists__fullname', 'genre__name']
+    search_fields = ['title', 'albums__title', 'artists__fullname', 'genre__name'], 
     ordering_fields = ['title']
+    
+    @action(detail=True, methods=['post'], url_path='increase-play')
+    def increase_play(self, request, pk=None):
+        song = self.get_object()
+        song.play_count += 1
+        song.save()
+        return Response({'message': 'Play count increased'}, status=status.HTTP_200_OK)
 
 
 class AlbumViewSet(viewsets.ModelViewSet):

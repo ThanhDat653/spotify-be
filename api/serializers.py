@@ -41,7 +41,7 @@ class ArtistMiniSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'fullname']
 
 class SongMiniSerializer(serializers.ModelSerializer):
-    artist = serializers.SerializerMethodField()
+    artist = ArtistMiniSerializer(many=True, read_only=True, source='artists')
     url = serializers.FileField(use_url=False)
     thumbnail = serializers.ImageField(use_url=False)
 
@@ -63,7 +63,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'avatar', 'username', 'fullname', 'albums', 'songs']
+        fields = ['id', 'username', 'fullname', 'albums', 'songs', 'avatar']
 
     def get_songs(self, obj):
         return SongSerializer(obj.songs.all(), many=True).data
@@ -131,7 +131,7 @@ class SongSerializer(serializers.ModelSerializer):
         many=True, queryset=Album.objects.all(), write_only=True, source='albums'
     )
 
-    artists = UserPublicSerializer(many=True, read_only=True)
+    artist = ArtistMiniSerializer(many=True, read_only=True, source='artists')
     artists_ids = serializers.PrimaryKeyRelatedField(
         many=True, queryset=User.objects.all(), write_only=True, source='artists'
     )
@@ -139,10 +139,10 @@ class SongSerializer(serializers.ModelSerializer):
     class Meta:
         model = Song
         fields = [
-            'id', 'title', 'duration', 'url', 'thumbnail',
+            'id', 'title', 'duration', 'url', 'thumbnail', 'play_count',
             'genre', 'genre_ids',
             'albums', 'albums_ids',
-            'artists', 'artists_ids'
+            'artist', 'artists_ids'
         ]
 
 
